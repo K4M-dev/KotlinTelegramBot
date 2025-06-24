@@ -42,7 +42,7 @@ fun main() {
             2 -> {
                 println("Выбран пункт \"Статистика\"")
                 val totalCount = dictionary.size
-                val learnedWords = dictionary.filter { it.correctAnswersCount >= 3 }
+                val learnedWords = dictionary.filter { it.correctAnswersCount >= notCorrectAnswersCount }
                 val learnedCount = learnedWords.size
                 val percent = (learnedCount.toDouble() / totalCount) * 100
                 println("Выучено $learnedCount из $totalCount | ${"%.0f".format(percent)}%\n")
@@ -56,3 +56,4 @@ fun main() {
         }
     }
 }
+const val notCorrectAnswersCount = 3
