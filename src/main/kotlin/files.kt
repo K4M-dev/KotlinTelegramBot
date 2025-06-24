@@ -39,7 +39,14 @@ fun main() {
         val userAnswer = readln().toIntOrNull()
         when (userAnswer) {
             1 -> println("Выбран пункт \"Учить слова\"")
-            2 -> println("Выбран пункт \"Статистика\"")
+            2 -> {
+                println("Выбран пункт \"Статистика\"")
+                val totalCount = dictionary.size
+                val learnedWords = dictionary.filter { it.correctAnswersCount >= notCorrectAnswersCount }
+                val learnedCount = learnedWords.size
+                val percent = (learnedCount.toDouble() / totalCount) * 100
+                println("Выучено $learnedCount из $totalCount | ${"%.0f".format(percent)}%\n")
+            }
             0 -> {
                 println("Выбран пункт \"Выход\"")
                 break
@@ -49,3 +56,4 @@ fun main() {
         }
     }
 }
+const val notCorrectAnswersCount = 3
