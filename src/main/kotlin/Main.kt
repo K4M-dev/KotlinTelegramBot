@@ -1,16 +1,10 @@
 package org.example
 
-data class Word(
-    val original: String,
-    val translate: String,
-    var correctAnswersCount: Int = 0,
-)
-
 fun Question.asConsoleString(): String {
     val variants = this.variants
         .mapIndexed { index, word -> "${index + OPTION_FOR_INDEX} - ${word.translate}" }
         .joinToString(separator = "\n")
-    return this.correctAnswer.original + "\n" + variants + "\n0 - Меню"
+    return this.correctAnswer.original + "\n" + variants + "\n\n0 - Меню"
 }
 
 fun main() {
@@ -18,7 +12,6 @@ fun main() {
     val trainer = LearnWordsTrainer()
 
     while (true) {
-        val question = trainer.getNextQuestion()
 
         println(
             """
@@ -32,15 +25,18 @@ fun main() {
         when (userAnswer) {
             1 -> {
                 println("Выбран пункт \"Учить слова\"")
+                while (true) {
+                    val question = trainer.getNextQuestion()
                 if (question == null) {
                     println("Все слова из словаря выучены\n")
-                    continue
+                    break
                 } else {
                     println("Как переводится слово ${question.correctAnswer.original}?")
                     println(question.asConsoleString())
                     val userInput = readln().toIntOrNull()
                     if (userInput == 0) {
                         println("Выбран пункт \"Меню\"")
+                        break
                     } else if (userInput in 1..question.variants.size) {
                         if (trainer.checkAnswer(userInput?.minus(OPTION_FOR_INDEX))) {
                             println("Верно!\n")
@@ -48,6 +44,7 @@ fun main() {
                     } else println("Пожалуйста, вводите число от 1 до ${question.variants.size}\n")
                 }
             }
+                }
 
             2 -> {
                 println("Выбран пункт \"Статистика\"")
@@ -65,7 +62,5 @@ fun main() {
     }
 }
 
-const val NOT_CORRECT_ANSWERS_COUNT = 3
-const val VARIANTS_COUNT = 4
 const val OPTION_FOR_INDEX = 1
 const val OPTION_FOR_PERCENTS = 100

@@ -2,9 +2,14 @@ package org.example
 
 import java.io.File
 
+data class Word(
+    val original: String,
+    val translate: String,
+    var correctAnswersCount: Int = 0,
+)
+
 data class Statistics(
     val totalCount: Int,
-    val learnedWords: List<Word>,
     val learnedCount: Int,
     val percent: Double,
 )
@@ -14,7 +19,10 @@ data class Question(
     val correctAnswer: Word,
 )
 
-class LearnWordsTrainer {
+class LearnWordsTrainer(
+    private val notCorrectAnswersCount: Int = 3,
+    private val variantsCount: Int = 4,
+) {
 
     private var question: Question? = null
     private var dictionary = loadDictionary()
@@ -45,19 +53,25 @@ class LearnWordsTrainer {
 
     fun getStatistics(): Statistics {
         val totalCount = dictionary.size
-        val learnedWords = dictionary.filter { it.correctAnswersCount >= NOT_CORRECT_ANSWERS_COUNT }
+        val learnedWords = dictionary.filter { it.correctAnswersCount >= notCorrectAnswersCount }
         val learnedCount = learnedWords.size
         val percent = (learnedCount.toDouble() / totalCount) * OPTION_FOR_PERCENTS
 
-        return Statistics(totalCount, learnedWords, learnedCount, percent)
+        return Statistics(totalCount, learnedCount, percent)
     }
 
     fun getNextQuestion(): Question? {
-        val notLearnedList = dictionary.filter { it.correctAnswersCount < NOT_CORRECT_ANSWERS_COUNT }
+        val notLearnedList = dictionary.filter { it.correctAnswersCount < notCorrectAnswersCount }
         if (notLearnedList.isEmpty()) return null
-        val shuffledWords = notLearnedList.shuffled()
-        val questionWords = shuffledWords.take(VARIANTS_COUNT).shuffled()
-        val correctAnswer = questionWords.random()
+
+        val needed = variantsCount
+        val notLearnedSample = notLearnedList.shuffled().take(needed)
+        val learnedSample = dictionary.filter { it.correctAnswersCount >= notCorrectAnswersCount }
+            .shuffled()
+            .take((needed - notLearnedSample.size).coerceAtLeast(0))
+
+        val questionWords = (notLearnedSample + learnedSample).shuffled()
+        val correctAnswer = notLearnedSample.random()
         question = Question(
             variants = questionWords,
             correctAnswer = correctAnswer,
